@@ -9,7 +9,6 @@ import streamlit as st
 import torch
 import librosa
 import numpy as np
-import pyaudio
 import wave
 import time
 import os
@@ -312,72 +311,37 @@ def main():
     
     with tab1:
         st.header("🎤 Live Audio Recording")
-        st.markdown("Click the button below to record live audio from your microphone.")
+        st.markdown("Use your device's microphone to record a guitar note.")
         
-        if st.button("🔴 Start Recording", type="primary", use_container_width=True):
+        # Use Streamlit's audio input widget
+        audio_value = st.audio_input("Record a guitar note")
+        
+        if audio_value is not None:
             try:
-                # Recording setup
-                CHUNK_SIZE = 1024
-                CHANNELS = 1
+                # Load audio from the recorded data
+                audio_data, file_sample_rate = librosa.load(audio_value, sr=sample_rate)
                 
-                # Initialize PyAudio
-                p = pyaudio.PyAudio()
-                
-                # Create placeholder for progress
-                progress_placeholder = st.empty()
-                status_placeholder = st.empty()
-                
-                status_placeholder.info(f"🎤 Recording for {duration} seconds...")
-                
-                # Open stream
-                stream = p.open(
-                    format=pyaudio.paFloat32,
-                    channels=CHANNELS,
-                    rate=sample_rate,
-                    input=True,
-                    frames_per_buffer=CHUNK_SIZE
-                )
-                
-                # Record audio
-                frames = []
-                total_frames = int(sample_rate / CHUNK_SIZE * duration)
-                
-                progress_bar = progress_placeholder.progress(0)
-                
-                for i in range(total_frames):
-                    data = stream.read(CHUNK_SIZE)
-                    frames.append(data)
-                    
-                    # Update progress
-                    progress = (i + 1) / total_frames
-                    progress_bar.progress(progress)
-                
-                # Stop stream
-                stream.stop_stream()
-                stream.close()
-                p.terminate()
-                
-                status_placeholder.success("✅ Recording complete!")
-                progress_placeholder.empty()
-                
-                # Convert to numpy array
-                audio_data = b''.join(frames)
-                audio_array = np.frombuffer(audio_data, dtype=np.float32)
+                # Display audio info
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.metric("Duration", f"{len(audio_data)/file_sample_rate:.2f}s")
+                with col2:
+                    st.metric("Sample Rate", f"{file_sample_rate} Hz")
                 
                 # Display audio player
-                st.audio(audio_data, format='audio/wav', sample_rate=sample_rate)
+                st.audio(audio_value)
                 
                 # Classify audio
                 predicted_note, confidence, top5_results = classify_audio(
-                    audio_array, sample_rate, model, scaler, reverse_mapping, device
+                    audio_data, sample_rate, model, scaler, reverse_mapping, device
                 )
                 
                 # Display results
                 display_results(predicted_note, confidence, top5_results)
                 
             except Exception as e:
-                st.error(f"❌ Recording error: {e}")
-                st.info("💡 Make sure your microphone is connected and permissions are granted.")
+                st.error(f"❌ Processing error: {e}")
+                st.info("💡 Please ensure you recorded a clear guitar note.")
     
     with tab2:
         st.header("📁 Audio File Upload")
