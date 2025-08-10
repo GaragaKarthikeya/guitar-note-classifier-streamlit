@@ -20,11 +20,11 @@ from datetime import datetime
 st.set_page_config(
     page_title="🎸 Guitar Note Classifier",
     page_icon="🎸",
-    layout="wide",
-    initial_sidebar_state="expanded"
+    layout="centered",
+    initial_sidebar_state="auto"
 )
 
-# Custom CSS for better styling
+# Custom CSS for better styling and mobile responsiveness
 st.markdown("""
 <style>
     /* Main theme colors */
@@ -40,35 +40,96 @@ st.markdown("""
     footer {visibility: hidden;}
     header {visibility: hidden;}
     
-    /* Main header styling */
+    /* Mobile responsive main container */
+    .main .block-container {
+        padding-top: 1rem;
+        padding-left: 1rem;
+        padding-right: 1rem;
+        max-width: 100%;
+    }
+    
+    /* Main header styling - mobile optimized */
     .main-header {
         background: var(--background-gradient);
-        padding: 2rem;
+        padding: 1.5rem 1rem;
         border-radius: 15px;
         color: white;
         text-align: center;
-        margin-bottom: 2rem;
+        margin-bottom: 1.5rem;
         box-shadow: 0 8px 32px rgba(0,0,0,0.1);
     }
     
     .main-title {
-        font-size: 3rem;
+        font-size: 2rem;
         font-weight: 700;
         margin-bottom: 0.5rem;
         text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        line-height: 1.2;
     }
     
     .subtitle {
-        font-size: 1.2rem;
+        font-size: 1rem;
         opacity: 0.9;
         margin-bottom: 1rem;
+        line-height: 1.4;
     }
     
-    /* Result cards */
+    /* Mobile responsive text sizing */
+    @media (max-width: 768px) {
+        .main-title {
+            font-size: 1.8rem;
+        }
+        .subtitle {
+            font-size: 0.9rem;
+        }
+        .prediction-note {
+            font-size: 2rem !important;
+        }
+        
+        /* Adjust main container padding */
+        .main .block-container {
+            padding-left: 0.5rem !important;
+            padding-right: 0.5rem !important;
+            padding-top: 0.5rem !important;
+        }
+        
+        /* Make cards more compact on mobile */
+        .result-card {
+            padding: 1rem 0.5rem !important;
+        }
+        
+        .main-header {
+            padding: 1rem 0.5rem !important;
+        }
+        
+        /* Better mobile step indicator */
+        .step-indicator {
+            gap: 0.3rem !important;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .main-title {
+            font-size: 1.5rem;
+        }
+        .subtitle {
+            font-size: 0.8rem;
+        }
+        .prediction-note {
+            font-size: 1.8rem !important;
+        }
+        
+        /* Extra compact for small phones */
+        .result-card {
+            padding: 0.8rem 0.3rem !important;
+        }
+    }
+    
+    /* Result cards - mobile optimized */
     .result-card {
         background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
         color: white;
-        padding: 2rem;
+        padding: 1.5rem 1rem;
         border-radius: 15px;
         text-align: center;
         margin: 1rem 0;
@@ -83,7 +144,7 @@ st.markdown("""
     }
     
     .prediction-note {
-        font-size: 3rem;
+        font-size: 2.5rem;
         font-weight: bold;
         margin: 1rem 0;
         text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
@@ -96,7 +157,7 @@ st.markdown("""
         margin: 1rem 0;
     }
     
-    /* Guitar fretboard styling */
+    /* Guitar fretboard styling - mobile responsive */
     .fretboard {
         background: #8B4513;
         border-radius: 10px;
@@ -105,10 +166,10 @@ st.markdown("""
         box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
     }
     
-    /* Recording interface styling */
+    /* Recording interface styling - mobile optimized */
     .recording-card {
         background: white;
-        padding: 2.5rem;
+        padding: 1.5rem 1rem;
         border-radius: 20px;
         box-shadow: 0 8px 32px rgba(0,0,0,0.15);
         text-align: center;
@@ -116,20 +177,67 @@ st.markdown("""
         border: 3px solid #ff6b6b;
     }
     
-    /* Button styling */
+    /* Button styling - touch-friendly */
     .stButton > button {
         background: linear-gradient(135deg, #667eea, #764ba2);
         color: white;
         border: none;
         border-radius: 10px;
-        padding: 0.75rem 2rem;
+        padding: 1rem 2rem;
         font-weight: 600;
         transition: all 0.3s ease;
+        min-height: 48px;
+        font-size: 1rem;
     }
     
     .stButton > button:hover {
         transform: translateY(-2px);
         box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    }
+    
+    /* Mobile responsive adjustments */
+    @media (max-width: 768px) {
+        .stButton > button {
+            padding: 1.2rem 1.5rem;
+            font-size: 1.1rem;
+            width: 100%;
+        }
+        
+        .recording-card {
+            padding: 1rem 0.5rem;
+        }
+        
+        .main .block-container {
+            padding-left: 0.5rem;
+            padding-right: 0.5rem;
+        }
+    }
+    
+    /* Audio input styling for mobile */
+    .stAudioInput {
+        margin: 1rem 0;
+    }
+    
+    .stAudioInput > div {
+        display: flex;
+        justify-content: center;
+    }
+    
+    /* Sidebar improvements */
+    .css-1d391kg {
+        padding-top: 1rem;
+    }
+    
+    /* Make sidebar toggle more visible on mobile */
+    @media (max-width: 768px) {
+        .css-1rs6os {
+            display: block !important;
+        }
+        
+        .css-17lntkn {
+            font-size: 1.2rem;
+            padding: 0.5rem;
+        }
     }
 </style>
 """, unsafe_allow_html=True)
@@ -342,38 +450,34 @@ def display_results(predicted_note, confidence, top5_results):
         </div>
         """, unsafe_allow_html=True)
         
-        # Confidence visualization
-        col1, col2, col3 = st.columns([1, 2, 1])
-        with col2:
-            if confidence >= 0.9:
-                st.success("🔥 EXCELLENT DETECTION!")
-            elif confidence >= 0.7:
-                st.success("✅ HIGH CONFIDENCE")
-            elif confidence >= 0.5:
-                st.warning("🟡 MODERATE CONFIDENCE")
-            else:
-                st.error("🟠 LOW CONFIDENCE - Try again")
-            
-            # Enhanced progress bar
-            st.progress(confidence, text=f"Confidence: {confidence*100:.1f}%")
+        # Confidence visualization - mobile friendly
+        if confidence >= 0.9:
+            st.success("🔥 EXCELLENT DETECTION!")
+        elif confidence >= 0.7:
+            st.success("✅ HIGH CONFIDENCE")
+        elif confidence >= 0.5:
+            st.warning("🟡 MODERATE CONFIDENCE")
+        else:
+            st.error("🟠 LOW CONFIDENCE - Try again")
         
-        # Top 5 predictions with enhanced styling
+        # Enhanced progress bar
+        st.progress(confidence, text=f"Confidence: {confidence*100:.1f}%")
+        
+        # Top 5 predictions with mobile-friendly styling
         st.subheader("📊 Alternative Predictions")
         
         for i, (note, conf) in enumerate(top5_results):
             rank_colors = ["#FFD700", "#C0C0C0", "#CD7F32", "#4169E1", "#9370DB"]
             rank_icons = ["🥇", "🥈", "🥉", "4️⃣", "5️⃣"]
             
-            col1, col2, col3, col4 = st.columns([1, 2, 2, 2])
+            # Mobile-friendly two-column layout
+            col1, col2 = st.columns([1, 3])
             
             with col1:
-                st.markdown(f"<h3 style='color:{rank_colors[i]}'>{rank_icons[i]}</h3>", 
+                st.markdown(f"<h3 style='color:{rank_colors[i]}'>{rank_icons[i]} {note}</h3>", 
                            unsafe_allow_html=True)
             with col2:
-                st.markdown(f"**{note}**")
-            with col3:
                 st.progress(conf, text=f"{conf*100:.1f}%")
-            with col4:
                 if i == 0:
                     st.success("Primary")
                 elif conf > 0.1:
@@ -458,16 +562,14 @@ def main():
     </div>
     """, unsafe_allow_html=True)
     
-    # Quick stats in header
-    col1, col2, col3, col4 = st.columns(4)
+    # Quick stats in header - mobile responsive
+    col1, col2 = st.columns(2)
     with col1:
-        st.metric("🎵 Supported Notes", "37")
+        st.metric("🎵 Notes", "37")
+        st.metric("🎯 Accuracy", "92%")
     with col2:
-        st.metric("🎸 Guitar Strings", "6")
-    with col3:
-        st.metric("⚡ Processing", "Real-time")
-    with col4:
-        st.metric("🧠 Accuracy", "92%")
+        st.metric("🎸 Strings", "6")
+        st.metric("⚡ Speed", "Real-time")
     
     # Call-to-action section
     st.markdown("""
@@ -487,12 +589,12 @@ def main():
     </div>
     """, unsafe_allow_html=True)
     
-    # Enhanced sidebar
+    # Enhanced sidebar - mobile optimized
     with st.sidebar:
         st.markdown("### ⚙️ Configuration")
         
         # Audio settings in an expander
-        with st.expander("🎤 Recording Settings", expanded=True):
+        with st.expander("🎤 Recording Settings", expanded=False):
             sample_rate = st.selectbox(
                 "Sample Rate", 
                 [22050, 44100], 
@@ -511,7 +613,7 @@ def main():
             """)
         
         # Model information
-        with st.expander("🧠 AI Model Info"):
+        with st.expander("🧠 AI Model Info", expanded=False):
             model, scaler, reverse_mapping, device = load_model()
             
             total_params = sum(p.numel() for p in model.parameters())
@@ -528,7 +630,7 @@ def main():
             st.progress(0.92, text="92% accuracy on test data")
         
         # Guitar tuning reference
-        with st.expander("🎸 Guitar Reference"):
+        with st.expander("🎸 Guitar Reference", expanded=False):
             st.markdown("**Standard Tuning:**")
             tuning_notes = [
                 ("1st String (Thinnest)", "E4", "#ff6b6b"),
@@ -555,7 +657,7 @@ def main():
             """)
         
         # Quick tips for better results
-        with st.expander("💡 Pro Tips"):
+        with st.expander("💡 Pro Tips", expanded=False):
             st.markdown("""
             **For Best Results:**
             
@@ -580,97 +682,102 @@ def main():
     # Main content - simplified to focus on recording
     st.markdown("### 🎤 Step 1: Record Your Guitar Note")
     
-    # Visual step indicator
+    # Mobile tip for sidebar
     st.markdown("""
-    <div style="display: flex; justify-content: center; margin: 2rem 0;">
-        <div style="display: flex; align-items: center; gap: 1rem;">
-            <div style="background: #ff6b6b; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem;">1</div>
-            <div style="color: #666; font-size: 1.1rem;">Record</div>
-            <div style="width: 50px; height: 2px; background: #ddd;"></div>
-            <div style="background: #4ecdc4; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem;">2</div>
-            <div style="color: #666; font-size: 1.1rem;">AI Analysis</div>
-            <div style="width: 50px; height: 2px; background: #ddd;"></div>
-            <div style="background: #45b7d1; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem;">3</div>
-            <div style="color: #666; font-size: 1.1rem;">Results</div>
+    <div style="background: rgba(69,183,209,0.1); padding: 0.8rem; border-radius: 8px; 
+               border-left: 3px solid #45b7d1; margin-bottom: 1rem;">
+        <small><strong>💡 Tip:</strong> Click the <strong>></strong> arrow in the top-left corner to access settings and guitar reference!</small>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Visual step indicator - mobile responsive
+    st.markdown("""
+    <div style="display: flex; justify-content: center; margin: 2rem 0; overflow-x: auto;">
+        <div style="display: flex; align-items: center; gap: 0.5rem; min-width: 300px;">
+            <div style="background: #ff6b6b; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1rem;">1</div>
+            <div style="color: #666; font-size: 0.9rem;">Record</div>
+            <div style="width: 30px; height: 2px; background: #ddd;"></div>
+            <div style="background: #4ecdc4; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1rem;">2</div>
+            <div style="color: #666; font-size: 0.9rem;">AI Analysis</div>
+            <div style="width: 30px; height: 2px; background: #ddd;"></div>
+            <div style="background: #45b7d1; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1rem;">3</div>
+            <div style="color: #666; font-size: 0.9rem;">Results</div>
         </div>
     </div>
     """, unsafe_allow_html=True)
     
-    # Prominent recording section
+    # Prominent recording section - mobile optimized
     st.markdown("""
     <div style="background: linear-gradient(135deg, #ff6b6b, #ff8e8e); 
-               color: white; padding: 2rem; border-radius: 15px; margin-bottom: 2rem; 
+               color: white; padding: 1.5rem 1rem; border-radius: 15px; margin-bottom: 1.5rem; 
                text-align: center; box-shadow: 0 8px 32px rgba(0,0,0,0.2);">
-        <h2 style="margin-bottom: 1rem;">🎤 Click Below to Start Recording!</h2>
-        <p style="font-size: 1.2rem; margin-bottom: 0;">Play a single guitar note clearly and hold it for 2-3 seconds</p>
+        <h2 style="margin-bottom: 1rem; font-size: 1.5rem;">🎤 Click Below to Start Recording!</h2>
+        <p style="font-size: 1rem; margin-bottom: 0; line-height: 1.4;">Play a single guitar note clearly and hold it for 2-3 seconds</p>
     </div>
     """, unsafe_allow_html=True)
     
-    # Recording instructions and tips
-    col1, col2, col3 = st.columns([1, 2, 1])
+    # Recording instructions and tips - mobile friendly layout
+    # Quick tips section
+    st.markdown("""
+    <div style="background: rgba(255,107,107,0.1); padding: 1rem; border-radius: 10px; 
+               border-left: 4px solid #ff6b6b; margin-bottom: 1rem;">
+        <h4 style="color: #ff6b6b;">🎯 Quick Tips</h4>
+        <ul style="margin-bottom: 0;">
+            <li>Quiet room</li>
+            <li>Single note only</li>
+            <li>Hold for 2-3 seconds</li>
+            <li>Play clearly</li>
+        </ul>
+    </div>
+    """, unsafe_allow_html=True)
     
-    with col1:
+    # Main recording interface with enhanced styling
+    st.markdown("""
+    <div class="recording-card">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">🎤</div>
+        <h3 style="color: #333; margin-bottom: 1rem;">Audio Recorder</h3>
+        <p style="color: #666; margin-bottom: 1.5rem;">Click the microphone button below</p>
+    """, unsafe_allow_html=True)
+    
+    # Audio input widget with better styling
+    audio_value = st.audio_input(
+        "",
+        help="🎵 Click the microphone button to start recording your guitar note",
+        label_visibility="collapsed"
+    )
+    
+    if not audio_value:
         st.markdown("""
-        <div style="background: rgba(255,107,107,0.1); padding: 1rem; border-radius: 10px; 
-                   border-left: 4px solid #ff6b6b;">
-            <h4 style="color: #ff6b6b;">🎯 Quick Tips</h4>
-            <ul style="margin-bottom: 0;">
-                <li>Quiet room</li>
-                <li>Single note only</li>
-                <li>Hold for 2-3 seconds</li>
-                <li>Play clearly</li>
-            </ul>
+        <div style="background: rgba(255,107,107,0.1); color: #ff6b6b; 
+                   padding: 1rem; border-radius: 10px; margin-top: 1rem;">
+            <strong>👆 Waiting for your recording...</strong><br>
+            Click the red microphone button above to start!
+        </div>
+        """, unsafe_allow_html=True)
+    else:
+        st.markdown("""
+        <div style="background: rgba(76,205,196,0.1); color: #4ecdc4; 
+                   padding: 1rem; border-radius: 10px; margin-top: 1rem;">
+            <strong>✅ Recording captured!</strong><br>
+            Processing your guitar note now...
         </div>
         """, unsafe_allow_html=True)
     
-    with col2:
-        # Main recording interface with enhanced styling
-        st.markdown("""
-        <div class="recording-card">
-            <div style="font-size: 3rem; margin-bottom: 1rem;">🎤</div>
-            <h3 style="color: #333; margin-bottom: 1rem;">Audio Recorder</h3>
-            <p style="color: #666; margin-bottom: 1.5rem;">Click the microphone button below</p>
-        """, unsafe_allow_html=True)
-        
-        # Audio input widget with better styling
-        audio_value = st.audio_input(
-            "",
-            help="🎵 Click the microphone button to start recording your guitar note",
-            label_visibility="collapsed"
-        )
-        
-        if not audio_value:
-            st.markdown("""
-            <div style="background: rgba(255,107,107,0.1); color: #ff6b6b; 
-                       padding: 1rem; border-radius: 10px; margin-top: 1rem;">
-                <strong>👆 Waiting for your recording...</strong><br>
-                Click the red microphone button above to start!
-            </div>
-            """, unsafe_allow_html=True)
-        else:
-            st.markdown("""
-            <div style="background: rgba(76,205,196,0.1); color: #4ecdc4; 
-                       padding: 1rem; border-radius: 10px; margin-top: 1rem;">
-                <strong>✅ Recording captured!</strong><br>
-                Processing your guitar note now...
-            </div>
-            """, unsafe_allow_html=True)
-        
-        st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)
     
-    with col3:
-        st.markdown("""
-        <div style="background: rgba(78,205,196,0.1); padding: 1rem; border-radius: 10px; 
-                   border-left: 4px solid #4ecdc4;">
-            <h4 style="color: #4ecdc4;">🎸 Best Notes</h4>
-            <ul style="margin-bottom: 0;">
-                <li>Open strings (E, A, D, G, B, E)</li>
-                <li>Fretted notes</li>
-                <li>Harmonics</li>
-                <li>Any single pitch</li>
-            </ul>
-        </div>
-        """, unsafe_allow_html=True)
+    # Best notes section
+    st.markdown("""
+    <div style="background: rgba(78,205,196,0.1); padding: 1rem; border-radius: 10px; 
+               border-left: 4px solid #4ecdc4; margin-top: 1rem;">
+        <h4 style="color: #4ecdc4;">🎸 Best Notes to Try</h4>
+        <ul style="margin-bottom: 0;">
+            <li>Open strings (E, A, D, G, B, E)</li>
+            <li>Fretted notes</li>
+            <li>Harmonics</li>
+            <li>Any single pitch</li>
+        </ul>
+    </div>
+    """, unsafe_allow_html=True)
     
     # Process recorded audio
     if audio_value is not None:
@@ -691,14 +798,14 @@ def main():
             # Success indicator
             st.success("✅ Audio recorded successfully!")
             
-            # Audio info in a clean layout
-            col1, col2, col3 = st.columns(3)
+            # Audio info in a mobile-friendly layout
+            col1, col2 = st.columns(2)
             with col1:
                 st.metric("⏱️ Duration", f"{len(audio_data)/file_sample_rate:.2f}s")
+                st.metric("📊 Quality", "Good" if len(audio_data) > 1000 else "Short")
             with col2:
                 st.metric("🔊 Sample Rate", f"{file_sample_rate} Hz")
-            with col3:
-                st.metric("📊 Quality", "Good" if len(audio_data) > 1000 else "Short")
+                st.metric("🎵 Data Points", f"{len(audio_data):,}")
             
             # Audio playback section
             st.markdown("### 🎧 Your Recording")
@@ -733,17 +840,15 @@ def main():
             </div>
             """, unsafe_allow_html=True)
             
-            # Prominent "Record Again" section
-            col1, col2, col3 = st.columns([1, 2, 1])
-            with col2:
-                if st.button("🎤 Record Another Note", type="primary", use_container_width=True):
-                    st.rerun()
-                
-                st.markdown("""
-                <div style="text-align: center; margin-top: 1rem; color: #666;">
-                    <small>💡 Try different strings, frets, or harmonics!</small>
-                </div>
-                """, unsafe_allow_html=True)
+            # Prominent "Record Again" section - mobile friendly
+            if st.button("🎤 Record Another Note", type="primary", use_container_width=True):
+                st.rerun()
+            
+            st.markdown("""
+            <div style="text-align: center; margin-top: 1rem; color: #666;">
+                <small>💡 Try different strings, frets, or harmonics!</small>
+            </div>
+            """, unsafe_allow_html=True)
                 
         except Exception as e:
             st.error(f"❌ Processing error: {e}")
