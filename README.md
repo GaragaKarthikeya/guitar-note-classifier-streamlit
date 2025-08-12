@@ -23,9 +23,9 @@
 
 <div align="center">
 
-<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/os7BuNaugXY?si=sUTwBED9VggT3L1p" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+[![Guitar Note Classifier AI Demo](https://img.youtube.com/vi/os7BuNaugXY/maxresdefault.jpg)](https://youtu.be/os7BuNaugXY?si=3WPSmN-q4ekibHev)
 
-**See the Guitar Note Classifier AI in action!**
+**🎥 [Watch the Full Demo on YouTube](https://youtu.be/os7BuNaugXY?si=3WPSmN-q4ekibHev) 🎥**
 
 *🎸 Real-time note detection • 🎵 Live guitar playing • 🧠 AI accuracy demonstration*
 
