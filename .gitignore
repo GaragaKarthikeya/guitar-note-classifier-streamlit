@@ -35,7 +35,6 @@ ENV/
 .ipynb_checkpoints/
 
 # Audio files (except test files)
-*.wav
 *.mp3
 *.m4a
 *.flac
